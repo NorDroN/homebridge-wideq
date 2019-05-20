@@ -9,15 +9,17 @@
 	"wideq",
 	"lg"
   ],
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "author": "NorDroN",
   "repository": {
     "type": "git",
     "url": "https://github.com/NorDroN/homebridge-wideq"
   },
   "bugs": {
     "url": "https://github.com/NorDroN/homebridge-wideq/issues"
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "engines": {
     "node": ">=4.3.2",
