@@ -1,0 +1,26 @@
+    
+{
+  "name": "homebridge-wideq",
+  "version": "0.0.1",
+  "description": "WideQ for Homebridge",
+  "keywords": [
+    "homebridge",
+    "homebridge-plugin",
+	"wideq",
+	"lg"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NorDroN/homebridge-wideq"
+  },
+  "bugs": {
+    "url": "https://github.com/NorDroN/homebridge-wideq/issues"
+  },
+  "engines": {
+    "node": ">=4.3.2",
+    "homebridge": ">=0.4.8"
+  }
+}
