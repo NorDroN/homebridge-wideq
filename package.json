@@ -1,15 +1,15 @@
-    
 {
   "name": "homebridge-wideq",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "WideQ for Homebridge",
+  "author": "NorDroN",
   "keywords": [
     "homebridge",
     "homebridge-plugin",
-	"wideq",
-	"lg"
-  ],
-  "author": "NorDroN",
+    "homebridge-wideq",
+    "wideq",
+    "lg"
+  ],  
   "repository": {
     "type": "git",
     "url": "https://github.com/NorDroN/homebridge-wideq"
