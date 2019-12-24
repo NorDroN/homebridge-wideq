@@ -22,6 +22,7 @@ function WideQ(log, config, api) {
   this.config = config;
   this.name = config['name'];
   this.accessories = [];
+  this.debug = !!this.config.debug;
 
   this.config.interval = this.config.interval || 10;
   this.config.country = this.config.country || 'RU';
@@ -68,33 +69,17 @@ WideQ.prototype = {
     });
   },
 
-  createAccessory: function (device) {
-    let uuid = UUIDGen.generate(device.name);
-    let accessory = new Accessory(device.name, uuid);
+  createAccessory: function (deviceConfig) {
+    let uuid = UUIDGen.generate(deviceConfig.name);
+    let accessory = new Accessory(deviceConfig.name, uuid);
 
     accessory.getService(Service.AccessoryInformation)
       .setCharacteristic(Characteristic.Name, accessory.displayName)
       .setCharacteristic(Characteristic.Identify, accessory.displayName)
       .setCharacteristic(Characteristic.Manufacturer, 'LG')
-      .setCharacteristic(Characteristic.Model, device.model);
+      .setCharacteristic(Characteristic.Model, deviceConfig.model);
     // .setCharacteristic(Characteristic.SerialNumber, serial)
     // .setCharacteristic(Characteristic.FirmwareRevision, packageFile.version);
-
-    const service1 = new Service.TemperatureSensor("Refrigerator temperature", "TempRefrigerator");
-    const service2 = new Service.TemperatureSensor("Freezer temperature", "TempFreezer");
-    const service3 = new Service.GarageDoorOpener("Door state", "DoorOpenState");
-
-    // service1.addCharacteristic(Characteristic.On);
-
-    service2.getCharacteristic(Characteristic.CurrentTemperature)
-      .setProps({
-        minValue: -100,
-        maxValue: 100
-      });
-
-    accessory.addService(service1);
-    accessory.addService(service2);
-    accessory.addService(service3);
 
     return accessory;
   },
@@ -126,26 +111,58 @@ WideQ.prototype = {
   receiveMessage: function (message) {
     // handle message (a line of text from stdout, parsed as JSON)
     if (message && message.id) {
-      const device = this.config.devices.find(d => d.id === message.id);
-      if (device) {
-        const accessory = this.accessories.find(a => a.displayName === device.name);
+      const deviceConfig = this.config.devices.find(d => d.id === message.id);
+      if (deviceConfig) {
+        const accessory = this.accessories.find(a => a.displayName === deviceConfig.name);
         if (accessory) {
-          // this.log('Current message: ' + JSON.stringify(message));
-          const service1 = accessory.getService("Refrigerator temperature");
-          if (service1) {
-            service1.setCharacteristic(Characteristic.CurrentTemperature, Number(message.state.TempRefrigerator));
-            // service1.setCharacteristic(Characteristic.CurrentDoorState, Number(message.state.DoorOpenState));
-          }
-          const service2 = accessory.getService("Freezer temperature");
-          if (service2) {
-            service2.setCharacteristic(Characteristic.CurrentTemperature, Number(message.state.TempFreezer));
-          }
-          const service3 = accessory.getService("Door state");
-          if (service3) {
-            service3.setCharacteristic(Characteristic.CurrentDoorState, Number(message.state.DoorOpenState) ? Characteristic.CurrentDoorState.OPEN : Characteristic.CurrentDoorState.CLOSED);
-          }
+          if (this.debug) this.log('Current message: ' + JSON.stringify(message));
+
+          this.addServices(accessory, deviceConfig, message);
         }
       }
+    }
+  },
+
+  addServices: function (accessory, deviceConfig, message) {
+    const params = deviceConfig.parameters && deviceConfig.parameters.length ?
+      deviceConfig.parameters :
+      Object.keys(message.state).map(d => {
+        // TODO add dynamic configuration
+        return { name: d };
+      });
+
+    params.forEach(d => this.addService(accessory, d, message.state[d.name]));
+  },
+
+  addService: function (accessory, serviceConfig, value) {
+    let service = accessory.getService(serviceConfig.name);
+
+    if (!service) {
+      switch (serviceConfig.type.toLowerCase()) {
+        case "temperature":
+          service = new Service.TemperatureSensor(serviceConfig.title || serviceConfig.name, serviceConfig.name);
+
+    // service.getCharacteristic(Characteristic.CurrentTemperature)
+    //   .setProps({
+    //     minValue: -100,
+    //     maxValue: 100
+    //   });
+
+          break;
+        case "door":
+          service = new Service.GarageDoorOpener(serviceConfig.title || serviceConfig.name, serviceConfig.name);
+          break;
+      }
+      accessory.addService(service);
+    }
+
+    switch (serviceConfig.type.toLowerCase()) {
+      case "temperature":
+        service.setCharacteristic(Characteristic.CurrentTemperature, Number(value));
+        break;
+      case "door":
+        service.setCharacteristic(Characteristic.CurrentDoorState, message.state.DoorOpenState === "OPEN" ? Characteristic.CurrentDoorState.OPEN : Characteristic.CurrentDoorState.CLOSED);
+        break;
     }
   }
 
