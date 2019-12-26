@@ -9,7 +9,7 @@
     "homebridge-wideq",
     "wideq",
     "lg"
-  ],  
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/NorDroN/homebridge-wideq"
