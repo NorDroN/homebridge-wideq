@@ -142,15 +142,18 @@ WideQ.prototype = {
         case "temperature":
           service = new Service.TemperatureSensor(serviceConfig.title || serviceConfig.name, serviceConfig.name);
 
-    // service.getCharacteristic(Characteristic.CurrentTemperature)
-    //   .setProps({
-    //     minValue: -100,
-    //     maxValue: 100
-    //   });
+          // service.getCharacteristic(Characteristic.CurrentTemperature)
+          //   .setProps({
+          //     minValue: -100,
+          //     maxValue: 100
+          //   });
 
           break;
-        case "door":
-          service = new Service.GarageDoorOpener(serviceConfig.title || serviceConfig.name, serviceConfig.name);
+        case "humidity":
+          service = new Service.HumiditySensor(serviceConfig.title || serviceConfig.name, serviceConfig.name);
+          break;
+        case "contact":
+          service = new Service.ContactSensor(serviceConfig.title || serviceConfig.name, serviceConfig.name);
           break;
       }
       accessory.addService(service);
@@ -158,10 +161,13 @@ WideQ.prototype = {
 
     switch (serviceConfig.type.toLowerCase()) {
       case "temperature":
-        service.setCharacteristic(Characteristic.CurrentTemperature, Number(value));
+        service.setCharacteristic(Characteristic.CurrentTemperature, value);
         break;
-      case "door":
-        service.setCharacteristic(Characteristic.CurrentDoorState, message.state.DoorOpenState === "OPEN" ? Characteristic.CurrentDoorState.OPEN : Characteristic.CurrentDoorState.CLOSED);
+      case "humidity":
+        service.setCharacteristic(Characteristic.CurrentRelativeHumidity, value);
+        break;
+      case "contact":
+        service.setCharacteristic(Characteristic.ContactSensorState, value === "OPEN");
         break;
     }
   }
