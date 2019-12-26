@@ -1,37 +1,41 @@
-## Welcome to GitHub Pages
+# homebridge-wideq
+A [Homebridge][] plugin for controlling/monitoring LG devices via their SmartThinQ platform, based on [WideQ][].
 
-You can use the [editor on GitHub](https://github.com/NorDroN/homebridge-wideq/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+[homebridge]: https://github.com/nfarina/homebridge
+[wideq]: https://github.com/sampsyo/wideq
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+Here's how to use this:
 
-### Markdown
+1. Install the [WideQ][]:
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+       $ pip3 install --upgrade wideq
 
-```markdown
-Syntax highlighted code block
+2. Install the homebridge-wideq plugin:
 
-# Header 1
-## Header 2
-### Header 3
+       $ npm install -g homebridge-wideq
 
-- Bulleted
-- List
+3. Get refresh token:
 
-1. Numbered
-2. List
+   Authenticate with the SmartThinQ service to get a refresh token by running the WideQ example script. (Eventually, I would like to add a feature to the Homebridge plugin that can let you log in through a UI, but I haven't gotten there yet.) Clone [WideQ][] repository and run example.py:
 
-**Bold** and _Italic_ and `Code` text
+       $ git clone https://github.com/sampsyo/wideq.git
+       $ cd wideq
+       $ python3 example.py -c US -l en-US
 
-[Link](url) and ![Image](src)
-```
+   For the `-c` and `-l` parameters, use your country and language code: SmartThinQ accounts are associated with a specific locale, so be sure to use the country you originally created your account with.
+   The script will ask you to open a browser, log in, and then paste the URL you're redirected to. It will then write a JSON file called `wideq_state.json`.
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+   Look inside this file for a key called `"refresh_token"` and copy the value.
 
-### Jekyll Themes
+4. Add the plugin to your config.json:
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/NorDroN/homebridge-wideq/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+        {
+            "platform": "WideQ",
+            "refresh_token": [YOUR_TOKEN_HERE],
+            "country": "US",
+            "language": "en-US",
+            "debug": false,
+            "interval": 10
+        }
 
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+   Use your refresh token and country & language codes. If region and language are not provided, then 'US' and 'en-US' are default.
