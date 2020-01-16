@@ -1,8 +1,13 @@
 'use strict';
 
-let { PythonShell } = require('python-shell');
+let { Client, NotLoggedInError } = require('wideq');
+const LogUtil = require('./lib/LogUtil.js');
+const AccessoryUtil = require('./lib/AccessoryUtil.js');
+const DeviceUtil = require('./lib/DeviceUtil.js');
 
 const packageFile = require('./package.json');
+
+const delay = (ms) => new Promise(_ => setTimeout(_, ms))
 
 var Accessory, Service, Characteristic, UUIDGen;
 
@@ -19,11 +24,13 @@ function WideQ(log, config, api) {
   if (!api || !config) return;
 
   this.log = log;
-  this.config = config;
-  this.name = config['name'];
-  this.accessories = [];
-  this.debug = !!this.config.debug;
+  this.logger = new LogUtil(null, log);
+  this.DeviceUtil = new DeviceUtil();
+  this.AccessoryUtil = new AccessoryUtil();
 
+  this.config = config;
+
+  this.debug = !!this.config.debug;
   this.config.interval = this.config.interval || 10;
   this.config.country = this.config.country || 'RU';
   this.config.language = this.config.language || 'ru-RU';
@@ -40,18 +47,13 @@ function WideQ(log, config, api) {
   this.log('**************************************************************');
 
   if (!this.config.refresh_token) {
-    this.log.error('Please add refresh_token!');
+    this.logger.error('Please add refresh_token!');
     return;
   }
 
-  if (this.config.devices.length) {
-    let shell = new PythonShell('script.py', {
-      scriptPath: __dirname,
-      args: ['-c', this.config.country, '-l', this.config.language, '-t', this.config.refresh_token, '-i', this.config.interval],
-      pythonOptions: ['-u'],
-      mode: 'json'
-    });
-    shell.on('message', this.receiveMessage.bind(this));
+  if (!this.config.devices.length) {
+    this.logger.error('Please add devices!');
+    return;
   }
 
   this.api = api;
@@ -60,18 +62,28 @@ function WideQ(log, config, api) {
 
 WideQ.prototype = {
 
-  didFinishLaunching: function () {
-    this.config.devices.map(d => {
-      if (!this.accessories.some(a => a.displayName === d.name)) {
-        const accessory = this.createAccessory(d);
+  didFinishLaunching: async function () {
+    if (this.debug) this.logger.info('Create client from token');
+    const client = await Client.loadFromToken(this.config.refresh_token, this.config.country, this.config.language);
+
+    const promises = this.config.devices.map(async deviceConfig => {
+      if (this.debug) this.logger.info(`Get device (${JSON.stringify(deviceConfig)})`);
+      const device = await client.getDevice(deviceConfig.id);
+      this.DeviceUtil.addOrUpdate(deviceConfig.id, { device: device, config: deviceConfig });
+      
+      if (!this.AccessoryUtil.getByUUID(deviceConfig.id)) {
+        const accessory = this.createAccessory(deviceConfig, device);
         this.addAccessory(accessory);
       }
     });
+    await Promise.all(promises);
+
+    await this.runMonitoring(client);
   },
 
-  createAccessory: function (deviceConfig) {
-    let uuid = UUIDGen.generate(deviceConfig.name);
-    let accessory = new Accessory(deviceConfig.name, uuid);
+  createAccessory: function (deviceConfig, device) {
+    // let uuid = UUIDGen.generate(deviceConfig.name);
+    let accessory = new Accessory(deviceConfig.name, deviceConfig.id);
 
     accessory.getService(Service.AccessoryInformation)
       .setCharacteristic(Characteristic.Name, accessory.displayName)
@@ -81,57 +93,102 @@ WideQ.prototype = {
     // .setCharacteristic(Characteristic.SerialNumber, serial)
     // .setCharacteristic(Characteristic.FirmwareRevision, packageFile.version);
 
+    this.addServices(accessory, deviceConfig);
+
     return accessory;
   },
 
   addAccessory: function (accessory) {
     if (accessory) {
-      this.log("Add Accessory: ", accessory.displayName);
+      this.logger.info("Add Accessory: ", accessory.displayName);
 
-      this.accessories.push(accessory);
+      this.AccessoryUtil.add(accessory);
       this.api.registerPlatformAccessories('homebridge-wideq', 'WideQ', [accessory]);
     }
   },
 
   removeAccessory: function (accessory) {
     if (accessory) {
-      this.log("Remove Accessory: ", accessory.displayName);
+      this.logger.info("Remove Accessory: ", accessory.displayName);
 
       this.api.unregisterPlatformAccessories('homebridge-wideq', 'WideQ', [accessory]);
-      delete this.accessories[accessory.displayName];
+      this.AccessoryUtil.remove(accessory);
     }
   },
 
   configureAccessory: function (accessory) {
-    this.log("Configure Accessory: ", accessory.displayName);
+    this.logger.info("Configure Accessory: ", accessory.displayName);
 
-    this.accessories.push(accessory);
+    this.AccessoryUtil.add(accessory);
   },
 
-  receiveMessage: function (message) {
-    // handle message (a line of text from stdout, parsed as JSON)
-    if (message && message.id) {
-      const deviceConfig = this.config.devices.find(d => d.id === message.id);
-      if (deviceConfig) {
-        const accessory = this.accessories.find(a => a.displayName === deviceConfig.name);
-        if (accessory) {
-          if (this.debug) this.log('Current message: ' + JSON.stringify(message));
+  runMonitoring: async function (client) {
+    const devices = Object.values(this.DeviceUtil.getAll());
+    if (this.debug) this.logger.info(`Run monitoring ${devices.length} devices from ${JSON.stringify(this.DeviceUtil.getAll())}`);
 
-          this.addServices(accessory, deviceConfig, message);
-        }
+    const startMonitorPromises = devices.map(async ({ device }) => {
+      if (this.debug) this.logger.info(`Load device and start monitoring (id = ${device.device.id})`);
+      await device.load();
+      await device.startMonitor();
+    });
+    await Promise.all(startMonitorPromises);
+
+    try {
+      for (; ;) {
+        await delay(this.config.interval * 1000);
+        const promises = devices.map(async ({ device, config }) => {
+          try {
+            if (this.debug) this.logger.info('polling...');
+            const status = await device.poll();
+            if (!status) {
+              this.logger.info('no status');
+              return;
+            }
+
+            if (this.debug) {
+              const keys = Reflect.ownKeys(status.constructor.prototype);
+              for (const key of keys) {
+                if (typeof key === 'string' && !['constructor'].includes(key)) {
+                  this.logger.info(`- ${key}: ${String(Reflect.get(status, key))}`);
+                }
+              }
+            }
+
+            this.receiveStatus(device, config, status);
+          } catch (e) {
+            if (e instanceof NotLoggedInError) {
+              await device.stopMonitor();
+              await client.refresh();
+              this.logger.info(client.devices);
+            }
+
+            this.logger.error(e);
+          }
+        });
+        await Promise.all(promises);
       }
+    } catch (e) {
+      this.logger.error(e);
+    } finally {
+      devices.forEach(async d => {
+        await d.stopMonitor();
+      });
     }
   },
 
-  addServices: function (accessory, deviceConfig, message) {
-    const params = deviceConfig.parameters && deviceConfig.parameters.length ?
-      deviceConfig.parameters :
-      Object.keys(message.state).map(d => {
-        // TODO add dynamic configuration
-        return { name: d };
-      });
+  receiveStatus: function (device, deviceConfig, status) {
+    const accessory = this.AccessoryUtil.getByUUID(device.device.id);
+    if (accessory) {
+      this.addServices(accessory, deviceConfig, status);
+    }
+  },
 
-    params.forEach(d => this.addService(accessory, d, message.state[d.name]));
+  addServices: function (accessory, deviceConfig, status) {
+    const characteristics = deviceConfig.characteristics && deviceConfig.characteristics.length ?
+      deviceConfig.characteristics :
+      [];
+
+    characteristics.forEach(d => this.addService(accessory, d, status[d.name]));
   },
 
   addService: function (accessory, serviceConfig, value) {
@@ -167,7 +224,7 @@ WideQ.prototype = {
         service.setCharacteristic(Characteristic.CurrentRelativeHumidity, value);
         break;
       case "contact":
-        service.setCharacteristic(Characteristic.ContactSensorState, value === "OPEN");
+        service.setCharacteristic(Characteristic.ContactSensorState, value === "OPEN" ? Characteristic.ContactSensorState.CONTACT_NOT_DETECTED : Characteristic.ContactSensorState.CONTACT_DETECTED);
         break;
     }
   }

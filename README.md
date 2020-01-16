@@ -2,19 +2,15 @@
 A [Homebridge][] plugin for controlling/monitoring LG devices via their SmartThinQ platform, based on [WideQ][].
 
 [homebridge]: https://github.com/nfarina/homebridge
-[wideq]: https://github.com/sampsyo/wideq
+[wideq]: https://github.com/NorDroN/wideq-js
 
 Here's how to use this:
 
-1. Install the [WideQ][]:
-
-       $ pip3 install --upgrade wideq
-
-2. Install the homebridge-wideq plugin:
+1. Install the homebridge-wideq plugin:
 
        $ npm install -g homebridge-wideq
 
-3. Get refresh token:
+2. Get refresh token:
 
    Authenticate with the SmartThinQ service to get a refresh token by running the WideQ example script. (Eventually, I would like to add a feature to the Homebridge plugin that can let you log in through a UI, but I haven't gotten there yet.) Clone [WideQ][] repository and run example.py:
 
@@ -27,7 +23,7 @@ Here's how to use this:
 
    Look inside this file for a key called `"refresh_token"` and copy the value.
 
-4. Add the plugin to your config.json:
+3. Add the plugin to your config.json:
 
         {
             "platform": "WideQ",

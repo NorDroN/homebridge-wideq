@@ -22,7 +22,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "python-shell": "^1.0.8"
+    "wideq": "^1.0.0"
   },
   "engines": {
     "node": ">=4.3.2",
