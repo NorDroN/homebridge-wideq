@@ -70,7 +70,7 @@ WideQ.prototype = {
       if (this.debug) this.logger.info(`Get device (${JSON.stringify(deviceConfig)})`);
       const device = await client.getDevice(deviceConfig.id);
       this.DeviceUtil.addOrUpdate(deviceConfig.id, { device: device, config: deviceConfig });
-      
+
       if (!this.AccessoryUtil.getByUUID(deviceConfig.id)) {
         const accessory = this.createAccessory(deviceConfig, device);
         this.addAccessory(accessory);
@@ -156,13 +156,14 @@ WideQ.prototype = {
 
             this.receiveStatus(device, config, status);
           } catch (e) {
-            if (e instanceof NotLoggedInError) {
+            this.logger.error(e);
+
+            if (e instanceof NotLoggedInError || e instanceof NotConnectedError) {
+              this.logger.info('Refresh token');
               await device.stopMonitor();
               await client.refresh();
               this.logger.info(client.devices);
             }
-
-            this.logger.error(e);
           }
         });
         await Promise.all(promises);
@@ -188,7 +189,7 @@ WideQ.prototype = {
       deviceConfig.characteristics :
       [];
 
-    characteristics.forEach(d => this.addService(accessory, d, status[d.name]));
+    characteristics.forEach(d => this.addService(accessory, d, status && status[d.name]));
   },
 
   addService: function (accessory, serviceConfig, value) {
@@ -216,16 +217,18 @@ WideQ.prototype = {
       accessory.addService(service);
     }
 
-    switch (serviceConfig.type.toLowerCase()) {
-      case "temperature":
-        service.setCharacteristic(Characteristic.CurrentTemperature, value);
-        break;
-      case "humidity":
-        service.setCharacteristic(Characteristic.CurrentRelativeHumidity, value);
-        break;
-      case "contact":
-        service.setCharacteristic(Characteristic.ContactSensorState, value === "OPEN" ? Characteristic.ContactSensorState.CONTACT_NOT_DETECTED : Characteristic.ContactSensorState.CONTACT_DETECTED);
-        break;
+    if (value) {
+      switch (serviceConfig.type.toLowerCase()) {
+        case "temperature":
+          service.setCharacteristic(Characteristic.CurrentTemperature, value);
+          break;
+        case "humidity":
+          service.setCharacteristic(Characteristic.CurrentRelativeHumidity, value);
+          break;
+        case "contact":
+          service.setCharacteristic(Characteristic.ContactSensorState, value === "OPEN" ? Characteristic.ContactSensorState.CONTACT_NOT_DETECTED : Characteristic.ContactSensorState.CONTACT_DETECTED);
+          break;
+      }
     }
   }
 
