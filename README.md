@@ -8,20 +8,16 @@ Here's how to use this:
 
 1. Install the homebridge-wideq plugin:
 
-       $ npm install -g homebridge-wideq
+        $ npm install -g homebridge-wideq wideq
 
 2. Get refresh token:
 
-   Authenticate with the SmartThinQ service to get a refresh token by running the WideQ example script. (Eventually, I would like to add a feature to the Homebridge plugin that can let you log in through a UI, but I haven't gotten there yet.) Clone [WideQ][] repository and run example.py:
+   Authenticate with the SmartThinQ service to get a refresh token by running the WideQ script (Eventually, I would like to add a feature to the Homebridge plugin that can let you log in through a UI, but I haven't gotten there yet.):
 
-       $ git clone https://github.com/sampsyo/wideq.git
-       $ cd wideq
-       $ python3 example.py -c US -l en-US
+        $ wideq auth -c US -l en-US
 
    For the `-c` and `-l` parameters, use your country and language code: SmartThinQ accounts are associated with a specific locale, so be sure to use the country you originally created your account with.
-   The script will ask you to open a browser, log in, and then paste the URL you're redirected to. It will then write a JSON file called `wideq_state.json`.
-
-   Look inside this file for a key called `"refresh_token"` and copy the value.
+   The script will ask you to open a browser, log in, and then paste the URL you're redirected to. It will then show `"Refresh token: [YOUR_TOKEN_HERE]"` and write a JSON file called `wideq_state.json`. Copy the value.
 
 3. Add the plugin to your config.json:
 

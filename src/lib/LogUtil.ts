@@ -1,41 +1,40 @@
-class LogUtil {
-  constructor(flag, log) {
-    this.flag = flag;
-    this.log = log;
+export default class LogUtil {
+  constructor(
+    public flag: string | null,
+    public log: any,
+  ) {
   }
-    
-  debug(str) {
+
+  public debug(str: string) {
     this.log.debug(this.flag ? '[' + this.flag + '] ' : '' + '[DEBUG] ' + str);
   }
-    
-  info(str) {
+
+  public info(str: string) {
     this.log.info(this.flag ? '[' + this.flag + '] ' : '' + '[INFO] ' + str);
   }
-    
-  warn(str) {
+
+  public warn(str: string) {
     this.log.warn(this.flag ? '[' + this.flag + '] ' : '' + '[WARN] ' + str);
   }
-    
-  error(str) {
+
+  public error(str: string | Error) {
     this.log.error(this.flag ? '[' + this.flag + '] ' : '' + '[ERROR] ' + str);
-    if(str instanceof Error) {
+    if (str instanceof Error) {
       this.log.debug(this.flag ? '[' + this.flag + '] ' : '' + '[ERROR] ' + str.stack);
     }
   }
-    
-  objKey2Str(obj) {
-    var keys = '';
+
+  public objKey2Str(obj: any) {
+    let keys = '';
     try {
-      for(var key in obj) {
+      for (const key in obj) {
         keys += key + ', ';
       }
       keys = keys.substring(0, keys.lastIndexOf(','));
-    } catch(e) {
+    } catch (e) {
       return e;
     }
-        
+
     return keys;
   }
 }
-
-module.exports = LogUtil;
