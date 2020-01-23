@@ -1,3 +1,4 @@
+import { RefrigeratorDevice, RefrigeratorStatus } from 'wideq';
 import { WideQ } from '../index';
 import { AccessoryParser } from './accessory';
 
@@ -5,7 +6,7 @@ export class RefrigeratorParser extends AccessoryParser {
   constructor(
     public platform: WideQ,
     public accessoryType: string,
-    ) {
+  ) {
     super(platform, accessoryType);
   }
 
@@ -15,7 +16,7 @@ export class RefrigeratorParser extends AccessoryParser {
 
   public getAccessoryInformation(deviceSid: string): any {
     return {
-      'Manufacturer': 'LD',
+      'Manufacturer': 'LG',
       'Model': 'Refrigerator',
       'SerialNumber': deviceSid
     };
@@ -43,35 +44,23 @@ export class RefrigeratorParser extends AccessoryParser {
     return result;
   }
 
-  public parserAccessories(jsonObj: any) {
-    const deviceSid = jsonObj['sid'];
-    const uuid = this.getAccessoryUUID(deviceSid);
+  public parserAccessories(device: RefrigeratorDevice, status: RefrigeratorStatus) {
+    const uuid = this.getAccessoryUUID(device.device.id);
     const accessory = this.platform.AccessoryUtil.getByUUID(uuid);
-    if (!accessory) return;
+    if (!accessory || !status) return;
 
     const tempRefrigeratorCharacteristic = accessory
-      .getService('TempRefrigerator')
+      .getService(this.platform.Service.TemperatureSensor) // TODO get by name
       .getCharacteristic(this.platform.Characteristic.CurrentTemperature);
-    const value = jsonObj.tempRefrigeratorC;
-    if (null != value) {
-      tempRefrigeratorCharacteristic.updateValue(value);
+    if (null != status.tempRefrigeratorC) {
+      tempRefrigeratorCharacteristic.updateValue(status.tempRefrigeratorC);
     }
 
-    if (tempRefrigeratorCharacteristic.listeners('get').length === 0) {
-      tempRefrigeratorCharacteristic.on('get', (callback) => {
-        const command = '{"cmd":"read", "sid":"' + deviceSid + '"}';
-        // this.platform.sendCommand(deviceSid, command).then(result => {
-        //   const value = jsonObj.tempRefrigeratorC;
-        //   if (null != value) {
-        //     callback(null, value);
-        //   } else {
-        //     callback(new Error('get value fail: ' + result));
-        //   }
-        // }).catch(err => {
-        //   this.platform.log.error(err);
-        //   callback(err);
-        // });
-      });
+    const doorOpenedCharacteristic = accessory
+      .getService(this.platform.Service.ContactSensor) // TODO get by name
+      .getCharacteristic(this.platform.Characteristic.ContactSensorState);
+    if (null != status.doorOpened) {
+      doorOpenedCharacteristic.updateValue(status.doorOpened);
     }
   }
 }

@@ -1,3 +1,4 @@
+import { Device, DeviceInfo } from 'wideq';
 import { WideQ } from '../index';
 
 export class AccessoryParser {
@@ -19,32 +20,29 @@ export class AccessoryParser {
   }
 
   public getAccessoryCategory(deviceSid: string): any {
-    return null;
+    throw new Error('Not implemented.');
   }
 
   public getAccessoryInformation(deviceSid: string): any {
-    return {};
+    throw new Error('Not implemented.');
   }
 
   public getServices(jsonObj: any, accessoryName: string): any[] {
-    return [];
+    throw new Error('Not implemented.');
   }
 
-  public getCreateAccessories(jsonObj: any) {
-    const deviceSid = jsonObj['id'];
-
-    const uuid = this.getAccessoryUUID(deviceSid);
+  public getCreateAccessories(device: DeviceInfo) {
+    const uuid = this.getAccessoryUUID(device.id);
     let accessory = this.platform.AccessoryUtil.getByUUID(uuid);
     if (null == accessory) {
-      const accessoryName = jsonObj['name'];
-      accessory = new this.platform.PlatformAccessory(accessoryName, uuid, this.getAccessoryCategory(deviceSid));
-      const accessoryInformation = this.getAccessoryInformation(deviceSid);
+      accessory = new this.platform.PlatformAccessory(device.name, uuid, this.getAccessoryCategory(device.id));
+      const accessoryInformation = this.getAccessoryInformation(device.id);
       accessory.getService(this.platform.Service.AccessoryInformation)
         .setCharacteristic(this.platform.Characteristic.Manufacturer, accessoryInformation['Manufacturer'] || 'Undefined')
         .setCharacteristic(this.platform.Characteristic.Model, accessoryInformation['Model'] || 'Undefined')
         .setCharacteristic(this.platform.Characteristic.SerialNumber, accessoryInformation['SerialNumber'] || 'Undefined');
-      this.getServices(jsonObj, accessoryName).forEach((service, index, serviceArr) => {
-        accessory.addService(service, accessoryName);
+      this.getServices(device, device.name).forEach((service, index, serviceArr) => {
+        accessory.addService(service, device.name);
       });
 
       accessory.reachable = true;
@@ -59,5 +57,7 @@ export class AccessoryParser {
     return null;
   }
 
-  public parserAccessories(jsonObj: any) { }
+  public parserAccessories(device: Device, status: any) {
+    throw new Error('Not implemented.');
+  }
 }

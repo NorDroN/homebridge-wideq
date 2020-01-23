@@ -1,3 +1,4 @@
+import { Device, DeviceInfo } from 'wideq';
 import { RefrigeratorParser } from '../devices/refrigerator';
 
 export default class ParseUtil {
@@ -19,25 +20,23 @@ export default class ParseUtil {
     return (model in this.parsers) ? this.parsers[model] : null;
   }
 
-  public getCreateAccessories(jsonObj: any) {
+  public getCreateAccessories(deviceInfo: DeviceInfo) {
     let result = [];
 
-    const model = jsonObj['type'];
-    const parser = this.getByModel(model);
+    const parser = this.getByModel(deviceInfo.type);
     if (parser) {
-      result = parser.getCreateAccessories(jsonObj);
+      result = parser.getCreateAccessories(deviceInfo);
     }
 
     return result;
   }
 
-  public parserAccessories(jsonObj: any) {
+  public parserAccessories(device: Device, status: any) {
     let result = [];
 
-    const model = jsonObj['device']['device']['type'];
-    const parser = this.getByModel(model);
+    const parser = this.getByModel(device.device.type);
     if (parser) {
-      result = parser.parserAccessories(jsonObj);
+      result = parser.parserAccessories(device, status);
     }
 
     return result;

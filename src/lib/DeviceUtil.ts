@@ -33,7 +33,7 @@ export default class DeviceUtil {
     delete this.devices[sid];
   }
 
-  public getAutoRemoveDevice(threshold: Number) {
+  public getAutoRemoveDevice(threshold: number) {
     const r: any = {};
 
     const nowTime = Date.now();
