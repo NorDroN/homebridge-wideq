@@ -12,7 +12,7 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 let platformAccessory: any, accessory: any, service: any, characteristic: any, UUIDGen: any;
 
-export default function(homebridge: any) {
+export default function (homebridge: any) {
   platformAccessory = homebridge.platformAccessory;
   accessory = homebridge.hap.Accessory;
   service = homebridge.hap.Service;
@@ -112,24 +112,14 @@ export class WideQ {
   }
 
   private async runMonitoring() {
-    const devices = Object.values(this.DeviceUtil.getAll()) as Device[];
-
-    try {
-      for (; ;) {
-        await delay(this.ConfigUtil.interval * 1000);
-        const promises = devices.map(async (device: Device) => {
-          const status = await this.getStatus(device);
-          if (status) this.ParseUtil.parserAccessories(device, status);
-        });
-        await Promise.all(promises);
-      }
-    } catch (e) {
-      this.logger.error(e);
-    } finally {
-      devices.forEach(async d => {
-        await d.stopMonitor();
+    setInterval(async () => {
+      const devices = Object.values(this.DeviceUtil.getAll()) as Device[];
+      const promises = devices.map(async (device: Device) => {
+        const status = await this.getStatus(device);
+        if (status) this.ParseUtil.parserAccessories(device, status);
       });
-    }
+      await Promise.all(promises);
+    }, this.ConfigUtil.interval * 1000);
   }
 
   public async getStatus(device: Device) {
