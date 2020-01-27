@@ -1,5 +1,6 @@
 import { Device, DeviceInfo } from 'wideq';
 import { RefrigeratorParser } from '../devices/refrigerator';
+import { WasherParser } from './../devices/washer';
 
 export default class ParseUtil {
   private parsers: any = {};
@@ -13,6 +14,7 @@ export default class ParseUtil {
   public loadParsers() {
     this.parsers = {
       'REFRIGERATOR': new RefrigeratorParser(this.platform, 'REFRIGERATOR'),
+      'WASHER': new WasherParser(this.platform, 'WASHER'),
     };
   }
 

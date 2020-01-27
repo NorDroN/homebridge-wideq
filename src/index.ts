@@ -70,7 +70,7 @@ export class WideQ {
 
     const promises = this.client.devices.map(async d => {
       if (this.ConfigUtil.debug) this.logger.info(`Load device and start monitoring: ${d}`);
-      const device = await this.client.getDevice(d.id);
+      const device = await this.client!.getDevice(d.id);
       await device.load();
       await device.startMonitor();
       this.DeviceUtil.addOrUpdate(d.id, device);
@@ -147,7 +147,7 @@ export class WideQ {
       if (e instanceof NotLoggedInError || e instanceof NotConnectedError) {
         this.logger.info('Refresh token');
         await device.stopMonitor();
-        await this.client.refresh();
+        await this.client!.refresh();
         await device.startMonitor();
       }
     }

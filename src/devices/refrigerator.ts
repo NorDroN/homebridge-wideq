@@ -66,7 +66,7 @@ export class RefrigeratorParser extends AccessoryParser {
       tempRefrigeratorCharacteristic.updateValue(status.tempRefrigeratorC);
     }
     if (tempRefrigeratorCharacteristic.listeners('set').length === 0) {
-      tempRefrigeratorCharacteristic.on('set', (value, callback) =>
+      tempRefrigeratorCharacteristic.on('set', (value: any, callback: any) =>
         device.setTempRefrigeratorC(value)
           .then(() => tempRefrigeratorCharacteristic.updateValue(value))
           .catch(err => callback(err)));
@@ -78,7 +78,7 @@ export class RefrigeratorParser extends AccessoryParser {
       tempFreezerCharacteristic.updateValue(status.tempFreezerC);
     }
     if (tempFreezerCharacteristic.listeners('set').length === 0) {
-      tempFreezerCharacteristic.on('set', (value, callback) =>
+      tempFreezerCharacteristic.on('set', (value: any, callback: any) =>
         device.setTempFreezerC(value)
           .then(() => tempFreezerCharacteristic.updateValue(value))
           .catch(err => callback(err)));
@@ -96,7 +96,7 @@ export class RefrigeratorParser extends AccessoryParser {
       ecoEnabledCharacteristic.updateValue(status.ecoEnabled);
     }
     if (ecoEnabledCharacteristic.listeners('set').length === 0) {
-      ecoEnabledCharacteristic.on('set', (value, callback) =>
+      ecoEnabledCharacteristic.on('set', (value: any, callback: any) =>
         device.setEcoEnabled(value)
           .then(() => ecoEnabledCharacteristic.updateValue(value))
           .catch(err => callback(err)));
@@ -108,7 +108,7 @@ export class RefrigeratorParser extends AccessoryParser {
       icePlusStatusCharacteristic.updateValue(status.icePlusStatus);
     }
     if (icePlusStatusCharacteristic.listeners('set').length === 0) {
-      icePlusStatusCharacteristic.on('set', (value, callback) =>
+      icePlusStatusCharacteristic.on('set', (value: any, callback: any) =>
         device.setIcePlusStatus(value)
           .then(() => icePlusStatusCharacteristic.updateValue(value))
           .catch(err => callback(err)));

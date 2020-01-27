@@ -1,6 +1,6 @@
 {
   "name": "homebridge-wideq",
-  "version": "0.0.5",
+  "version": "0.1.0",
   "description": "WideQ for Homebridge",
   "author": "NorDroN",
   "keywords": [
@@ -23,7 +23,7 @@
     "build": "tsc"
   },
   "dependencies": {
-    "wideq": "^1.0.0"
+    "wideq": "git://github.com/NorDroN/wideq-js#test"
   },
   "devDependencies": {
     "@types/uuid": "^3.4.6",
