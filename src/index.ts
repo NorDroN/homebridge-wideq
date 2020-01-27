@@ -63,6 +63,9 @@ export class WideQ {
   }
 
   private async didFinishLaunching() {
+    // TODO remove accessories only if needed
+    this.unregisterPlatformAccessories(Object.values(this.AccessoryUtil.getAll()));
+
     if (this.ConfigUtil.debug) this.logger.info('Create client from token and get devices');
     this.client = await Client.loadFromToken(
       this.ConfigUtil.refreshToken, this.ConfigUtil.country, this.ConfigUtil.language);
@@ -72,7 +75,13 @@ export class WideQ {
       if (this.ConfigUtil.debug) this.logger.info(`Load device and start monitoring: ${d}`);
       const device = await this.client!.getDevice(d.id);
       await device.load();
-      await device.startMonitor();
+      try {
+        await device.startMonitor();
+      } catch (e) {
+        if (e instanceof NotConnectedError) {
+          this.logger.info(`Device is not connected: ${d}`);
+        }
+      }
       this.DeviceUtil.addOrUpdate(d.id, device);
 
       const createAccessories = this.ParseUtil.getCreateAccessories(d);
@@ -124,14 +133,15 @@ export class WideQ {
 
   public async getStatus(device: Device) {
     try {
-      if (this.ConfigUtil.debug) this.logger.info('polling...');
+      if (this.ConfigUtil.debug) this.logger.info(`Polling status: ${device.device}`);
       const status = await device.poll();
       if (!status) {
-        this.logger.info('no status');
+        this.logger.info(`No status: ${device.device}`);
         return;
       }
 
       if (this.ConfigUtil.debug) {
+        this.logger.info(`Status: ${device.device}`);
         const keys = Reflect.ownKeys(status.constructor.prototype);
         for (const key of keys) {
           if (typeof key === 'string' && !['constructor'].includes(key)) {
@@ -142,9 +152,14 @@ export class WideQ {
 
       return status;
     } catch (e) {
+      if (e instanceof NotConnectedError) {
+        this.logger.info(`Device is not connected: ${device.device}`);
+        return;
+      }
+
       this.logger.error(e);
 
-      if (e instanceof NotLoggedInError || e instanceof NotConnectedError) {
+      if (e instanceof NotLoggedInError) {
         this.logger.info('Refresh token');
         await device.stopMonitor();
         await this.client!.refresh();
