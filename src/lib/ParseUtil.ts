@@ -1,4 +1,5 @@
 import { Device, DeviceInfo } from 'wideq';
+import { DefaultParser } from '../devices/default';
 import { RefrigeratorParser } from '../devices/refrigerator';
 import { WasherParser } from './../devices/washer';
 
@@ -15,11 +16,12 @@ export default class ParseUtil {
     this.parsers = {
       'REFRIGERATOR': new RefrigeratorParser(this.platform, 'REFRIGERATOR'),
       'WASHER': new WasherParser(this.platform, 'WASHER'),
+      'DEFAULT': new DefaultParser(this.platform, 'UNKNOWN'),
     };
   }
 
   public getByModel(model: string) {
-    return (model in this.parsers) ? this.parsers[model] : null;
+    return (model in this.parsers) ? this.parsers[model] : this.parsers['DEFAULT'];
   }
 
   public getCreateAccessories(deviceInfo: DeviceInfo) {
