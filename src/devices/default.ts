@@ -1,4 +1,4 @@
-import { WasherDevice, WasherStatus } from 'wideq';
+import { DeviceInfo, WasherDevice, WasherStatus } from 'wideq';
 import { WideQ } from '../index';
 import { AccessoryParser } from './accessory';
 
@@ -10,19 +10,24 @@ export class DefaultParser extends AccessoryParser {
     super(platform, accessoryType);
   }
 
-  public getAccessoryCategory(deviceSid: string): any {
+  public getAccessoryCategory(device: DeviceInfo): any {
     return this.platform.Accessory.Categories.OTHER;
   }
 
-  public getAccessoryInformation(deviceSid: string): any {
+  public getAccessoryInformation(device: DeviceInfo): any {
     return {
       'Manufacturer': 'LG',
-      'SerialNumber': deviceSid
+      'Model': device.modelId,
+      'SerialNumber': device.id,
     };
   }
 
-  public getServices(jsonObj: any, accessoryName: string) {
+  public getServices(device: DeviceInfo) {
     const result: any[] = [];
+
+    const service1 = new this.platform.Service.ServiceLabel(device.name);
+    result.push(service1);
+
     return result;
   }
 

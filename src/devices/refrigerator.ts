@@ -1,4 +1,4 @@
-import { RefrigeratorDevice, RefrigeratorStatus } from 'wideq';
+import { DeviceInfo, RefrigeratorDevice, RefrigeratorStatus } from 'wideq';
 import { WideQ } from '../index';
 import { AccessoryParser } from './accessory';
 
@@ -10,22 +10,22 @@ export class RefrigeratorParser extends AccessoryParser {
     super(platform, accessoryType);
   }
 
-  public getAccessoryCategory(deviceSid: string): any {
+  public getAccessoryCategory(device: DeviceInfo): any {
     return this.platform.Accessory.Categories.OTHER;
   }
 
-  public getAccessoryInformation(deviceSid: string): any {
+  public getAccessoryInformation(device: DeviceInfo): any {
     return {
       'Manufacturer': 'LG',
-      'Model': 'Refrigerator',
-      'SerialNumber': deviceSid
+      'Model': device.modelId,
+      'SerialNumber': device.id,
     };
   }
 
-  public getServices(jsonObj: any, accessoryName: string) {
+  public getServices(device: DeviceInfo) {
     const result: any[] = [];
 
-    const service1 = new this.platform.Service.TemperatureSensor('TempRefrigerator', 'TempRefrigerator')
+    const service1 = new this.platform.Service.TemperatureSensor('TempRefrigerator', 'TempRefrigerator');
     service1.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
       .setProps({
         minValue: 1,

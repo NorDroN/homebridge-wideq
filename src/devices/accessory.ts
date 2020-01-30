@@ -19,15 +19,15 @@ export class AccessoryParser {
     }
   }
 
-  public getAccessoryCategory(deviceSid: string): any {
+  public getAccessoryCategory(device: DeviceInfo): any {
     throw new Error('Not implemented.');
   }
 
-  public getAccessoryInformation(deviceSid: string): any {
+  public getAccessoryInformation(device: DeviceInfo): any {
     throw new Error('Not implemented.');
   }
 
-  public getServices(jsonObj: any, accessoryName: string): any[] {
+  public getServices(device: DeviceInfo): any[] {
     throw new Error('Not implemented.');
   }
 
@@ -35,13 +35,13 @@ export class AccessoryParser {
     const uuid = this.getAccessoryUUID(device.id);
     let accessory = this.platform.AccessoryUtil.getByUUID(uuid);
     if (null == accessory) {
-      accessory = new this.platform.PlatformAccessory(device.name, uuid, this.getAccessoryCategory(device.id));
-      const accessoryInformation = this.getAccessoryInformation(device.id);
+      accessory = new this.platform.PlatformAccessory(device.name, uuid, this.getAccessoryCategory(device));
+      const accessoryInformation = this.getAccessoryInformation(device);
       accessory.getService(this.platform.Service.AccessoryInformation)
         .setCharacteristic(this.platform.Characteristic.Manufacturer, accessoryInformation['Manufacturer'] || 'Undefined')
         .setCharacteristic(this.platform.Characteristic.Model, accessoryInformation['Model'] || 'Undefined')
         .setCharacteristic(this.platform.Characteristic.SerialNumber, accessoryInformation['SerialNumber'] || 'Undefined');
-      this.getServices(device, device.name).forEach((service, index, serviceArr) => {
+      this.getServices(device).forEach((service, index, serviceArr) => {
         accessory.addService(service, device.name);
       });
 
