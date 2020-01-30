@@ -31,3 +31,11 @@ Here's how to use this:
         }
 
    Use your refresh token and country & language codes. If region and language are not provided, then 'US' and 'en-US' are default.
+
+## Implementation Status
+
+| *Device* | *Implementation* | *Status* | *Control* |
+| --- | --- | --- | --- |
+| AC | :heavy_check_mark: | :warning: needs testing | :warning: needs testing |
+| Refrigerator | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| Washer | :heavy_check_mark: | :warning: needs testing | :warning: needs testing |
