@@ -33,7 +33,7 @@ export class TVParser extends AccessoryParser {
       this.platform.Service.Television,
       this.platform.Characteristic.Active,
       status?.isOn,
-      device.setOn
+      (device as any).setOn
     );
   }
 }
