@@ -84,7 +84,7 @@ export class WideQ {
       }
       this.DeviceUtil.addOrUpdate(d.id, device);
 
-      const createAccessories = this.ParseUtil.getCreateAccessories(d);
+      const createAccessories = this.ParseUtil.getCreateAccessories(device);
       this.registerPlatformAccessories([createAccessories]);
       this.ParseUtil.parserAccessories(device, {});
     });

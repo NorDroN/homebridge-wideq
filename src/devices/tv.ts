@@ -1,8 +1,8 @@
-import { DeviceInfo, Device } from 'wideq';
+import { Device, DeviceInfo } from 'wideq';
 import { WideQ } from '../index';
 import { AccessoryParser } from './accessory';
 
-export class DefaultParser extends AccessoryParser {
+export class TVParser extends AccessoryParser {
   constructor(
     public platform: WideQ,
     public accessoryType: string,
@@ -11,7 +11,7 @@ export class DefaultParser extends AccessoryParser {
   }
 
   public getAccessoryCategory(device: DeviceInfo): any {
-    return this.platform.Accessory.Categories.OTHER;
+    return this.platform.Accessory.Categories.TELEVISION;
   }
 
   public getAccessoryInformation(device: DeviceInfo): any {
@@ -29,9 +29,11 @@ export class DefaultParser extends AccessoryParser {
 
     this.createService(
       accessory,
-      device.device.name,
-      this.platform.Service.ServiceLabel,
-      this.platform.Characteristic.Name
+      'Television',
+      this.platform.Service.Television,
+      this.platform.Characteristic.Active,
+      status?.isOn,
+      device.setOn
     );
   }
 }

@@ -22,42 +22,27 @@ export class ACParser extends AccessoryParser {
     };
   }
 
-  public getServices(device: DeviceInfo) {
-    const result: any[] = [];
-
-    const service1 = new this.platform.Service.HeaterCooler('HeaterCooler', 'HeaterCooler');
-    result.push(service1);
-
-    return result;
-  }
-
-  public parserAccessories(device: ACDevice, status: ACStatus) {
+  public parserAccessories(device: ACDevice, status?: ACStatus) {
     const uuid = this.getAccessoryUUID(device.device.id);
     const accessory = this.platform.AccessoryUtil.getByUUID(uuid);
-    if (!accessory || !status) return;
+    if (!accessory) return;
 
-    const activeCharacteristic = accessory.getService('HeaterCooler')
-      .getCharacteristic(this.platform.Characteristic.Active);
-    if (null != status.isOn) {
-      activeCharacteristic.updateValue(status.isOn);
-    }
-    if (activeCharacteristic.listeners('set').length === 0) {
-      activeCharacteristic.on('set', (value: any, callback: any) =>
-        device.setOn(value)
-          .then(() => activeCharacteristic.updateValue(value))
-          .catch(err => callback(err)));
-    }
+    this.createService(
+      accessory,
+      'HeaterCooler',
+      this.platform.Service.HeaterCooler,
+      this.platform.Characteristic.Active,
+      status?.isOn,
+      device.setOn
+    );
 
-    const tempCharacteristic = accessory.getService('HeaterCooler')
-      .getCharacteristic(this.platform.Characteristic.CurrentTemperature);
-    if (null != status.currentTempInCelsius) {
-      tempCharacteristic.updateValue(status.currentTempInCelsius);
-    }
-    if (tempCharacteristic.listeners('set').length === 0) {
-      tempCharacteristic.on('set', (value: any, callback: any) =>
-        device.setCelsius(value)
-          .then(() => tempCharacteristic.updateValue(value))
-          .catch(err => callback(err)));
-    }
+    this.createService(
+      accessory,
+      'HeaterCooler',
+      this.platform.Service.HeaterCooler,
+      this.platform.Characteristic.CurrentTemperature,
+      status?.currentTempInCelsius,
+      device.setCelsius
+    );
   }
 }

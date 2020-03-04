@@ -27,23 +27,18 @@ export class AccessoryParser {
     throw new Error('Not implemented.');
   }
 
-  public getServices(device: DeviceInfo): any[] {
-    throw new Error('Not implemented.');
-  }
-
-  public getCreateAccessories(device: DeviceInfo) {
-    const uuid = this.getAccessoryUUID(device.id);
+  public getCreateAccessories(device: Device) {
+    const deviceInfo = device.device;
+    const uuid = this.getAccessoryUUID(deviceInfo.id);
     let accessory = this.platform.AccessoryUtil.getByUUID(uuid);
     if (null == accessory) {
-      accessory = new this.platform.PlatformAccessory(device.name, uuid, this.getAccessoryCategory(device));
-      const accessoryInformation = this.getAccessoryInformation(device);
+      accessory = new this.platform.PlatformAccessory(deviceInfo.name, uuid, this.getAccessoryCategory(deviceInfo));
+      const accessoryInformation = this.getAccessoryInformation(deviceInfo);
       accessory.getService(this.platform.Service.AccessoryInformation)
         .setCharacteristic(this.platform.Characteristic.Manufacturer, accessoryInformation['Manufacturer'] || 'Undefined')
         .setCharacteristic(this.platform.Characteristic.Model, accessoryInformation['Model'] || 'Undefined')
         .setCharacteristic(this.platform.Characteristic.SerialNumber, accessoryInformation['SerialNumber'] || 'Undefined');
-      this.getServices(device).forEach((service, index, serviceArr) => {
-        accessory.addService(service, device.name);
-      });
+      this.parserAccessories(device, null);
 
       accessory.reachable = true;
       accessory.on('identify', (paired: any, callback: any) => {
@@ -57,7 +52,34 @@ export class AccessoryParser {
     return null;
   }
 
-  public parserAccessories(device: Device, status: any) {
+  public parserAccessories(device: Device, status?: any) {
     throw new Error('Not implemented.');
+  }
+
+  protected createService(
+    accessory: any,
+    name: string,
+    serviceType: any,
+    charactiristicType: any,
+    currentValue?: any,
+    setter?: (value: any) => Promise<void>,
+  ) {
+    let service = accessory.getService(name);
+    if (!service) {
+      service = accessory.addService(serviceType, name, name);
+    }
+
+    const characteristic = service.getCharacteristic(charactiristicType);
+    if (setter && characteristic.listeners('set').length === 0) {
+      characteristic.on('set', (value: any, callback: any) =>
+        setter(value)
+          .then(() => characteristic.updateValue(value))
+          .catch(err => callback(err))
+      );
+    }
+
+    if (null != currentValue) {
+      characteristic.updateValue(currentValue);
+    }
   }
 }

@@ -22,30 +22,18 @@ export class WasherParser extends AccessoryParser {
     };
   }
 
-  public getServices(device: DeviceInfo) {
-    const result: any[] = [];
-
-    const service1 = new this.platform.Service.Switch('Power', 'Power');
-    result.push(service1);
-
-    return result;
-  }
-
-  public parserAccessories(device: WasherDevice, status: WasherStatus) {
+  public parserAccessories(device: WasherDevice, status?: WasherStatus) {
     const uuid = this.getAccessoryUUID(device.device.id);
     const accessory = this.platform.AccessoryUtil.getByUUID(uuid);
-    if (!accessory || !status) return;
+    if (!accessory) return;
 
-    const powerCharacteristic = accessory.getService('Power')
-      .getCharacteristic(this.platform.Characteristic.On);
-    if (null != status.isOn) {
-      powerCharacteristic.updateValue(status.isOn);
-    }
-    if (powerCharacteristic.listeners('set').length === 0) {
-      powerCharacteristic.on('set', (value: any, callback: any) =>
-        device.setOn(value)
-          .then(() => powerCharacteristic.updateValue(value))
-          .catch(err => callback(err)));
-    }
+    this.createService(
+      accessory,
+      'Power',
+      this.platform.Service.Switch,
+      this.platform.Characteristic.On,
+      status?.isOn,
+      device.setOn
+    );
   }
 }
