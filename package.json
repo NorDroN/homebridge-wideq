@@ -24,7 +24,7 @@
     "build": "tsc"
   },
   "dependencies": {
-    "wideq": "git://github.com/NorDroN/wideq-js#test"
+    "wideq": "git://github.com/NorDroN/wideq-js.git#test"
   },
   "devDependencies": {
     "@types/uuid": "^3.4.6",
