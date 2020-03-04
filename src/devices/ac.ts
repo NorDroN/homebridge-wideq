@@ -21,7 +21,7 @@ export class ACParser extends AccessoryParser {
       this.platform.Service.HeaterCooler,
       this.platform.Characteristic.Active,
       status?.isOn,
-      device.setOn
+      value => device.setOn(value)
     );
 
     this.createOrUpdateService(
@@ -30,7 +30,7 @@ export class ACParser extends AccessoryParser {
       this.platform.Service.HeaterCooler,
       this.platform.Characteristic.CurrentTemperature,
       status?.currentTempInCelsius,
-      device.setCelsius
+      value => device.setCelsius(value)
     );
   }
 }

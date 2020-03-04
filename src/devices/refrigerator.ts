@@ -21,7 +21,7 @@ export class RefrigeratorParser extends AccessoryParser {
       this.platform.Service.TemperatureSensor,
       this.platform.Characteristic.CurrentTemperature,
       status?.tempRefrigeratorC,
-      device.setTempRefrigeratorC,
+      value => device.setTempRefrigeratorC(value),
       { minValue: 1, maxValue: 7 } // TODO magic consts
     );
 
@@ -31,7 +31,7 @@ export class RefrigeratorParser extends AccessoryParser {
       this.platform.Service.TemperatureSensor,
       this.platform.Characteristic.CurrentTemperature,
       status?.tempFreezerC,
-      device.setTempFreezerC,
+      value => device.setTempFreezerC(value),
       { minValue: -23, maxValue: -15 } // TODO magic consts
     );
 
@@ -49,7 +49,7 @@ export class RefrigeratorParser extends AccessoryParser {
       this.platform.Service.Switch,
       this.platform.Characteristic.On,
       status?.ecoEnabled,
-      device.setEcoEnabled
+      value => device.setEcoEnabled(value)
     );
 
     this.createOrUpdateService(
@@ -58,7 +58,7 @@ export class RefrigeratorParser extends AccessoryParser {
       this.platform.Service.Switch,
       this.platform.Characteristic.On,
       status?.icePlusStatus,
-      device.setIcePlusStatus
+      value => device.setIcePlusStatus(value)
     );
   }
 }

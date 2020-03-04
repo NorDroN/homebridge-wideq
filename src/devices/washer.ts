@@ -21,7 +21,7 @@ export class WasherParser extends AccessoryParser {
       this.platform.Service.Switch,
       this.platform.Characteristic.On,
       status?.isOn,
-      device.setOn
+      value => device.setOn(value)
     );
   }
 }
