@@ -14,56 +14,6 @@ export class RefrigeratorParser extends AccessoryParser {
     return this.platform.Accessory.Categories.OTHER;
   }
 
-  // public getServices(device: DeviceInfo) {
-  //   const result: any[] = [];
-
-  //   const service1 = new this.platform.Service.TemperatureSensor(
-  //     "TempRefrigerator",
-  //     "TempRefrigerator"
-  //   );
-  //   service1
-  //     .getCharacteristic(this.platform.Characteristic.CurrentTemperature)
-  //     .setProps({
-  //       minValue: 1,
-  //       maxValue: 7
-  //     });
-  //   // service.getCharacteristic(this.Characteristic.CurrentTemperature);
-  //   result.push(service1);
-
-  //   const service2 = new this.platform.Service.TemperatureSensor(
-  //     "TempFreezer",
-  //     "TempFreezer"
-  //   );
-  //   service2
-  //     .getCharacteristic(this.platform.Characteristic.CurrentTemperature)
-  //     .setProps({
-  //       minValue: -23,
-  //       maxValue: -15
-  //     });
-  //   result.push(service2);
-
-  //   const service3 = new this.platform.Service.ContactSensor(
-  //     "DoorOpened",
-  //     "DoorOpened"
-  //   );
-  //   // service.getCharacteristic(this.Characteristic.ContactSensorState);
-  //   result.push(service3);
-
-  //   const service4 = new this.platform.Service.Switch(
-  //     "EcoEnabled",
-  //     "EcoEnabled"
-  //   );
-  //   result.push(service4);
-
-  //   const service5 = new this.platform.Service.Switch(
-  //     "IcePlusStatus",
-  //     "IcePlusStatus"
-  //   );
-  //   result.push(service5);
-
-  //   return result;
-  // }
-
   public updateAccessoryStatuses(device: RefrigeratorDevice, accessory: any, status?: RefrigeratorStatus) {
     this.createOrUpdateService(
       accessory,
@@ -71,7 +21,8 @@ export class RefrigeratorParser extends AccessoryParser {
       this.platform.Service.TemperatureSensor,
       this.platform.Characteristic.CurrentTemperature,
       status?.tempRefrigeratorC,
-      device.setTempRefrigeratorC
+      device.setTempRefrigeratorC,
+      { minValue: 1, maxValue: 7 } // TODO magic consts
     );
 
     this.createOrUpdateService(
@@ -80,7 +31,8 @@ export class RefrigeratorParser extends AccessoryParser {
       this.platform.Service.TemperatureSensor,
       this.platform.Characteristic.CurrentTemperature,
       status?.tempFreezerC,
-      device.setTempFreezerC
+      device.setTempFreezerC,
+      { minValue: -23, maxValue: -15 } // TODO magic consts
     );
 
     this.createOrUpdateService(

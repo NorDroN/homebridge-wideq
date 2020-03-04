@@ -75,6 +75,7 @@ export class AccessoryParser {
     charactiristicType: any,
     currentValue?: any,
     setter?: (value: any) => Promise<void>,
+    characteristicOptions?: any,
   ) {
     let service = accessory.getService(name);
     if (!service) {
@@ -82,6 +83,10 @@ export class AccessoryParser {
     }
 
     const characteristic = service.getCharacteristic(charactiristicType);
+    if (characteristicOptions) {
+      characteristic.setProps(characteristicOptions);
+    }
+
     if (setter && characteristic.listeners('set').length === 0) {
       characteristic.on('set', (value: any, callback: any) =>
         setter(value)
