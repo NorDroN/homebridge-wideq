@@ -24,7 +24,11 @@ export class AccessoryParser {
   }
 
   public getAccessoryInformation(device: DeviceInfo): any {
-    throw new Error('Not implemented.');
+    return {
+      'Manufacturer': 'LG',
+      'Model': device.modelId,
+      'SerialNumber': device.id,
+    };
   }
 
   public getCreateAccessories(device: Device) {
@@ -38,7 +42,7 @@ export class AccessoryParser {
         .setCharacteristic(this.platform.Characteristic.Manufacturer, accessoryInformation['Manufacturer'] || 'Undefined')
         .setCharacteristic(this.platform.Characteristic.Model, accessoryInformation['Model'] || 'Undefined')
         .setCharacteristic(this.platform.Characteristic.SerialNumber, accessoryInformation['SerialNumber'] || 'Undefined');
-      this.parserAccessories(device, null);
+      this.parserAccessories(device);
 
       accessory.reachable = true;
       accessory.on('identify', (paired: any, callback: any) => {
@@ -53,10 +57,18 @@ export class AccessoryParser {
   }
 
   public parserAccessories(device: Device, status?: any) {
+    const uuid = this.getAccessoryUUID(device.device.id);
+    const accessory = this.platform.AccessoryUtil.getByUUID(uuid);
+    if (!accessory) return;
+
+    return this.updateAccessoryStatuses(device, accessory, status);
+  }
+
+  public updateAccessoryStatuses(device: Device, accessory: any, status?: any): any {
     throw new Error('Not implemented.');
   }
 
-  protected createService(
+  protected createOrUpdateService(
     accessory: any,
     name: string,
     serviceType: any,

@@ -14,20 +14,8 @@ export class DefaultParser extends AccessoryParser {
     return this.platform.Accessory.Categories.OTHER;
   }
 
-  public getAccessoryInformation(device: DeviceInfo): any {
-    return {
-      'Manufacturer': 'LG',
-      'Model': device.modelId,
-      'SerialNumber': device.id,
-    };
-  }
-
-  public parserAccessories(device: Device, status?: any) {
-    const uuid = this.getAccessoryUUID(device.device.id);
-    const accessory = this.platform.AccessoryUtil.getByUUID(uuid);
-    if (!accessory) return;
-
-    this.createService(
+  public updateAccessoryStatuses(device: Device, accessory: any, status?: any) {
+    this.createOrUpdateService(
       accessory,
       device.device.name,
       this.platform.Service.ServiceLabel,

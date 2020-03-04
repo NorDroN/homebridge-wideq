@@ -14,14 +14,6 @@ export class RefrigeratorParser extends AccessoryParser {
     return this.platform.Accessory.Categories.OTHER;
   }
 
-  public getAccessoryInformation(device: DeviceInfo): any {
-    return {
-      'Manufacturer': 'LG',
-      'Model': device.modelId,
-      'SerialNumber': device.id,
-    };
-  }
-
   // public getServices(device: DeviceInfo) {
   //   const result: any[] = [];
 
@@ -72,12 +64,8 @@ export class RefrigeratorParser extends AccessoryParser {
   //   return result;
   // }
 
-  public parserAccessories(device: RefrigeratorDevice, status?: RefrigeratorStatus) {
-    const uuid = this.getAccessoryUUID(device.device.id);
-    const accessory = this.platform.AccessoryUtil.getByUUID(uuid);
-    if (!accessory) return;
-
-    this.createService(
+  public updateAccessoryStatuses(device: RefrigeratorDevice, accessory: any, status?: RefrigeratorStatus) {
+    this.createOrUpdateService(
       accessory,
       'TempRefrigerator',
       this.platform.Service.TemperatureSensor,
@@ -86,7 +74,7 @@ export class RefrigeratorParser extends AccessoryParser {
       device.setTempRefrigeratorC
     );
 
-    this.createService(
+    this.createOrUpdateService(
       accessory,
       'TempFreezer',
       this.platform.Service.TemperatureSensor,
@@ -95,7 +83,7 @@ export class RefrigeratorParser extends AccessoryParser {
       device.setTempFreezerC
     );
 
-    this.createService(
+    this.createOrUpdateService(
       accessory,
       'DoorOpened',
       this.platform.Service.ContactSensor,
@@ -103,7 +91,7 @@ export class RefrigeratorParser extends AccessoryParser {
       status?.doorOpened
     );
 
-    this.createService(
+    this.createOrUpdateService(
       accessory,
       'EcoEnabled',
       this.platform.Service.Switch,
@@ -112,7 +100,7 @@ export class RefrigeratorParser extends AccessoryParser {
       device.setEcoEnabled
     );
 
-    this.createService(
+    this.createOrUpdateService(
       accessory,
       'IcePlusStatus',
       this.platform.Service.Switch,

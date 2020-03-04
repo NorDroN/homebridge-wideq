@@ -14,20 +14,8 @@ export class WasherParser extends AccessoryParser {
     return this.platform.Accessory.Categories.OTHER;
   }
 
-  public getAccessoryInformation(device: DeviceInfo): any {
-    return {
-      'Manufacturer': 'LG',
-      'Model': device.modelId,
-      'SerialNumber': device.id,
-    };
-  }
-
-  public parserAccessories(device: WasherDevice, status?: WasherStatus) {
-    const uuid = this.getAccessoryUUID(device.device.id);
-    const accessory = this.platform.AccessoryUtil.getByUUID(uuid);
-    if (!accessory) return;
-
-    this.createService(
+  public updateAccessoryStatuses(device: WasherDevice, accessory: any, status?: WasherStatus) {
+    this.createOrUpdateService(
       accessory,
       'Power',
       this.platform.Service.Switch,

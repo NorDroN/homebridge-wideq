@@ -1,5 +1,6 @@
 import { Device, DeviceInfo } from 'wideq';
 import { ACParser } from '../devices/ac';
+import { AccessoryParser } from '../devices/accessory';
 import { DefaultParser } from '../devices/default';
 import { RefrigeratorParser } from '../devices/refrigerator';
 import { TVParser } from '../devices/tv';
@@ -24,7 +25,7 @@ export default class ParseUtil {
     };
   }
 
-  public getByModel(model: string) {
+  public getByModel(model: string): AccessoryParser {
     return (model in this.parsers) ? this.parsers[model] : this.parsers['DEFAULT'];
   }
 

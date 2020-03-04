@@ -14,20 +14,8 @@ export class ACParser extends AccessoryParser {
     return this.platform.Accessory.Categories.AIR_CONDITIONER;
   }
 
-  public getAccessoryInformation(device: DeviceInfo): any {
-    return {
-      'Manufacturer': 'LG',
-      'Model': device.modelId,
-      'SerialNumber': device.id,
-    };
-  }
-
-  public parserAccessories(device: ACDevice, status?: ACStatus) {
-    const uuid = this.getAccessoryUUID(device.device.id);
-    const accessory = this.platform.AccessoryUtil.getByUUID(uuid);
-    if (!accessory) return;
-
-    this.createService(
+  public updateAccessoryStatuses(device: ACDevice, accessory: any, status?: ACStatus) {
+    this.createOrUpdateService(
       accessory,
       'HeaterCooler',
       this.platform.Service.HeaterCooler,
@@ -36,7 +24,7 @@ export class ACParser extends AccessoryParser {
       device.setOn
     );
 
-    this.createService(
+    this.createOrUpdateService(
       accessory,
       'HeaterCooler',
       this.platform.Service.HeaterCooler,
