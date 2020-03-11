@@ -73,7 +73,7 @@ export class AccessoryParser {
     name: string,
     serviceType: any,
     charactiristicType: any,
-    currentValue?: any,
+    getter?: () => any,
     setter?: (value: any) => Promise<void>,
     characteristicOptions?: any,
   ) {
@@ -95,8 +95,11 @@ export class AccessoryParser {
       );
     }
 
-    if (null != currentValue) {
-      characteristic.updateValue(currentValue);
+    if (getter) {
+      const currentValue = getter();
+      if (null != currentValue) {
+        characteristic.updateValue(currentValue);
+      }
     }
   }
 }

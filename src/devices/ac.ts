@@ -20,7 +20,7 @@ export class ACParser extends AccessoryParser {
       'HeaterCooler',
       this.platform.Service.HeaterCooler,
       this.platform.Characteristic.Active,
-      status?.isOn,
+      () => status?.isOn,
       value => device.setOn(value)
     );
 
@@ -29,7 +29,7 @@ export class ACParser extends AccessoryParser {
       'HeaterCooler',
       this.platform.Service.HeaterCooler,
       this.platform.Characteristic.CurrentTemperature,
-      status?.currentTempInCelsius,
+      () => status?.currentTempInCelsius,
       value => device.setCelsius(value)
     );
   }

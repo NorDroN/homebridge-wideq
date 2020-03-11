@@ -20,7 +20,7 @@ export class TVParser extends AccessoryParser {
       'Television',
       this.platform.Service.Television,
       this.platform.Characteristic.Active,
-      status?.isOn,
+      () => status?.isOn,
       value => (device as any).setOn(value)
     );
   }

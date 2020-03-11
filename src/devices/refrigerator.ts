@@ -20,7 +20,7 @@ export class RefrigeratorParser extends AccessoryParser {
       'TempRefrigerator',
       this.platform.Service.TemperatureSensor,
       this.platform.Characteristic.CurrentTemperature,
-      status?.tempRefrigeratorC,
+      () => status?.tempRefrigeratorC,
       value => device.setTempRefrigeratorC(value),
       { minValue: 1, maxValue: 7 } // TODO magic consts
     );
@@ -30,7 +30,7 @@ export class RefrigeratorParser extends AccessoryParser {
       'TempFreezer',
       this.platform.Service.TemperatureSensor,
       this.platform.Characteristic.CurrentTemperature,
-      status?.tempFreezerC,
+      () => status?.tempFreezerC,
       value => device.setTempFreezerC(value),
       { minValue: -23, maxValue: -15 } // TODO magic consts
     );
@@ -40,24 +40,24 @@ export class RefrigeratorParser extends AccessoryParser {
       'DoorOpened',
       this.platform.Service.ContactSensor,
       this.platform.Characteristic.ContactSensorState,
-      status?.doorOpened
+      () => status?.doorOpened
     );
 
-    this.createOrUpdateService(
-      accessory,
-      'EcoEnabled',
-      this.platform.Service.Switch,
-      this.platform.Characteristic.On,
-      status?.ecoEnabled,
-      value => device.setEcoEnabled(value)
-    );
+      this.createOrUpdateService(
+        accessory,
+        'EcoEnabled',
+        this.platform.Service.Switch,
+        this.platform.Characteristic.On,
+        () => status?.ecoEnabled,
+        value => device.setEcoEnabled(value)
+      );
 
     this.createOrUpdateService(
       accessory,
       'IcePlusStatus',
       this.platform.Service.Switch,
       this.platform.Characteristic.On,
-      status?.icePlusStatus,
+      () => status?.icePlusStatus,
       value => device.setIcePlusStatus(value)
     );
   }
