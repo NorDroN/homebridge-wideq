@@ -15,13 +15,17 @@ export class WasherParser extends AccessoryParser {
   }
 
   public updateAccessoryStatuses(device: WasherDevice, accessory: any, status?: WasherStatus) {
+    const Characteristic = this.platform.Characteristic;
+
     this.createOrUpdateService(
       accessory,
       'Power',
       this.platform.Service.Switch,
-      this.platform.Characteristic.On,
-      () => status?.isOn,
-      value => device.setOn(value)
+      [{
+        characteristic: Characteristic.On,
+        getter: () => status?.isOn,
+        setter: value => device.setOn(value),
+      }],
     );
   }
 }

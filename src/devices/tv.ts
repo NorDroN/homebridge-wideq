@@ -15,13 +15,17 @@ export class TVParser extends AccessoryParser {
   }
 
   public updateAccessoryStatuses(device: Device, accessory: any, status?: any) {
+    const Characteristic = this.platform.Characteristic;
+
     this.createOrUpdateService(
       accessory,
       'Television',
       this.platform.Service.Television,
-      this.platform.Characteristic.Active,
-      () => status?.isOn,
-      value => (device as any).setOn(value)
+      [{
+        characteristic: Characteristic.Active,
+        getter: () => status?.isOn,
+        setter: value => (device as any).setOn(value),
+      }],
     );
   }
 }

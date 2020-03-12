@@ -72,34 +72,33 @@ export class AccessoryParser {
     accessory: any,
     name: string,
     serviceType: any,
-    charactiristicType: any,
-    getter?: () => any,
-    setter?: (value: any) => Promise<void>,
-    characteristicOptions?: any,
+    map: Array<{ characteristic: any, getter?: () => any, setter?: (value: any) => Promise<void>, options?: any }>,
   ) {
     let service = accessory.getService(name);
     if (!service) {
       service = accessory.addService(serviceType, name, name);
     }
 
-    const characteristic = service.getCharacteristic(charactiristicType);
-    if (characteristicOptions) {
-      characteristic.setProps(characteristicOptions);
-    }
-
-    if (setter && characteristic.listeners('set').length === 0) {
-      characteristic.on('set', (value: any, callback: any) =>
-        setter(value)
-          .then(() => characteristic.updateValue(value))
-          .catch(err => callback(err))
-      );
-    }
-
-    if (getter) {
-      const currentValue = getter();
-      if (null != currentValue) {
-        characteristic.updateValue(currentValue);
+    map.forEach(item => {
+      const characteristic = service.getCharacteristic(item.characteristic);
+      if (item.options) {
+        characteristic.setProps(item.options);
       }
-    }
+
+      if (item.setter && characteristic.listeners('set').length === 0) {
+        characteristic.on('set', (value: any, callback: any) =>
+          item.setter && item.setter(value)
+            .then(() => characteristic.updateValue(value))
+            .catch(err => callback(err))
+        );
+      }
+
+      if (item.getter) {
+        const currentValue = item.getter();
+        if (null != currentValue) {
+          characteristic.updateValue(currentValue);
+        }
+      }
+    });
   }
 }

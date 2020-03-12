@@ -15,50 +15,69 @@ export class RefrigeratorParser extends AccessoryParser {
   }
 
   public updateAccessoryStatuses(device: RefrigeratorDevice, accessory: any, status?: RefrigeratorStatus) {
+    const Characteristic = this.platform.Characteristic;
+
     this.createOrUpdateService(
       accessory,
       'TempRefrigerator',
-      this.platform.Service.TemperatureSensor,
-      this.platform.Characteristic.CurrentTemperature,
-      () => status?.tempRefrigeratorC,
-      value => device.setTempRefrigeratorC(value),
-      { minValue: 1, maxValue: 7 } // TODO magic consts
+      this.platform.Service.Thermostat,
+      [{
+        characteristic: Characteristic.CurrentTemperature,
+        getter: () => status?.tempRefrigeratorC,
+        options: { minValue: 1, maxValue: 7 }, // TODO magic consts
+      }, {
+        characteristic: Characteristic.TargetTemperature,
+        setter: value => device.setTempRefrigeratorC(value),
+        options: { minValue: 1, maxValue: 7 }, // TODO magic consts
+      }],
     );
 
     this.createOrUpdateService(
       accessory,
       'TempFreezer',
-      this.platform.Service.TemperatureSensor,
-      this.platform.Characteristic.CurrentTemperature,
-      () => status?.tempFreezerC,
-      value => device.setTempFreezerC(value),
-      { minValue: -23, maxValue: -15 } // TODO magic consts
+      this.platform.Service.Thermostat,
+      [{
+        characteristic: Characteristic.CurrentTemperature,
+        getter: () => status?.tempFreezerC,
+        options: { minValue: -23, maxValue: -15 }, // TODO magic consts
+      }, {
+        characteristic: Characteristic.TargetTemperature,
+        setter: value => device.setTempFreezerC(value),
+        options: { minValue: -23, maxValue: -15 }, // TODO magic consts
+      }],
     );
 
     this.createOrUpdateService(
       accessory,
       'DoorOpened',
       this.platform.Service.ContactSensor,
-      this.platform.Characteristic.ContactSensorState,
-      () => status?.doorOpened
+      [{
+        characteristic: Characteristic.ContactSensorState,
+        getter: () => status?.doorOpened,
+      }],
     );
 
-      this.createOrUpdateService(
-        accessory,
-        'EcoEnabled',
-        this.platform.Service.Switch,
-        this.platform.Characteristic.On,
-        () => status?.ecoEnabled,
-        value => device.setEcoEnabled(value)
-      );
+    //if (device.model.value('EcoFriendly')) {
+    this.createOrUpdateService(
+      accessory,
+      'EcoEnabled',
+      this.platform.Service.Switch,
+      [{
+        characteristic: Characteristic.On,
+        getter: () => status?.ecoEnabled,
+        setter: value => device.setEcoEnabled(value),
+      }],
+    );
 
     this.createOrUpdateService(
       accessory,
       'IcePlusStatus',
       this.platform.Service.Switch,
-      this.platform.Characteristic.On,
-      () => status?.icePlusStatus,
-      value => device.setIcePlusStatus(value)
+      [{
+        characteristic: Characteristic.On,
+        getter: () => status?.icePlusStatus,
+        setter: value => device.setIcePlusStatus(value),
+      }],
     );
   }
 }

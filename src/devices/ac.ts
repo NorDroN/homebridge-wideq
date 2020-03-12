@@ -15,22 +15,21 @@ export class ACParser extends AccessoryParser {
   }
 
   public updateAccessoryStatuses(device: ACDevice, accessory: any, status?: ACStatus) {
-    this.createOrUpdateService(
-      accessory,
-      'HeaterCooler',
-      this.platform.Service.HeaterCooler,
-      this.platform.Characteristic.Active,
-      () => status?.isOn,
-      value => device.setOn(value)
-    );
+    const Characteristic = this.platform.Characteristic;
 
     this.createOrUpdateService(
       accessory,
       'HeaterCooler',
       this.platform.Service.HeaterCooler,
-      this.platform.Characteristic.CurrentTemperature,
-      () => status?.currentTempInCelsius,
-      value => device.setCelsius(value)
+      [{
+        characteristic: Characteristic.Active,
+        getter: () => status?.isOn,
+        setter: (value: any) => device.setOn(value),
+      }, {
+        characteristic: Characteristic.CurrentTemperature,
+        getter:  () => status?.currentTempInCelsius,
+        setter:  (value: any) => device.setCelsius(value),
+      }],
     );
   }
 }
