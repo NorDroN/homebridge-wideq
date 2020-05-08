@@ -63,8 +63,8 @@ export class WideQ {
   }
 
   private async didFinishLaunching() {
-    // TODO remove accessories only if needed
-    this.unregisterPlatformAccessories(Object.values(this.AccessoryUtil.getAll()));
+    const preexistingAccessories = Object.keys(this.AccessoryUtil.getAll());
+    let accessoriesToRemove = preexistingAccessories;
 
     if (this.ConfigUtil.debug) this.logger.info('Create client from token and get devices');
     this.client = await Client.loadFromToken(
@@ -84,11 +84,23 @@ export class WideQ {
       }
       this.DeviceUtil.addOrUpdate(d.id, device);
 
+      const thisDeviceAccessoryUuid = this.ParseUtil.getByModel(device.device.type).getAccessoryUUID(d.id);
+
       const createAccessories = this.ParseUtil.getCreateAccessories(device);
-      this.registerPlatformAccessories([createAccessories]);
-      this.ParseUtil.parserAccessories(device, {});
+
+      if (!preexistingAccessories.includes(thisDeviceAccessoryUuid)) {
+        this.logger.info("Accessory "+thisDeviceAccessoryUuid+" is new – adding");
+        this.registerPlatformAccessories([createAccessories]);
+        this.ParseUtil.parserAccessories(device, {});
+      } else {
+        this.logger.info("Accessory "+thisDeviceAccessoryUuid+" is already created/cached");
+        // remove
+        accessoriesToRemove.splice(accessoriesToRemove.indexOf(thisDeviceAccessoryUuid), 1);
+      }
     });
     await Promise.all(promises);
+
+    this.unregisterPlatformAccessories(accessoriesToRemove.map(this.AccessoryUtil.getByUUID));
 
     await this.runMonitoring();
   }
