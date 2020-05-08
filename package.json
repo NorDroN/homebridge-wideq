@@ -24,6 +24,7 @@
     "build": "tsc"
   },
   "dependencies": {
+    "temperature": "git://github.com/ncovercash/temperature.git#47fc137",
     "wideq": "^1.1.1"
   },
   "devDependencies": {
