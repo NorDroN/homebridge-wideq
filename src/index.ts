@@ -100,7 +100,7 @@ export class WideQ {
     });
     await Promise.all(promises);
 
-    this.unregisterPlatformAccessories(accessoriesToRemove.map(this.AccessoryUtil.getByUUID));
+    this.unregisterPlatformAccessories(accessoriesToRemove.map(this.AccessoryUtil.getByUUID.bind(this.AccessoryUtil)));
 
     await this.runMonitoring();
   }
