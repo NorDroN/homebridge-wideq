@@ -89,6 +89,11 @@ export class RefrigeratorParser extends AccessoryParser {
         );
       });
 
+      this.createOrUpdateService(
+        accessory, 'Door', this.platform.Service.ContactSensor,
+        this.platform.Characteristic.ContactSensorState,
+        status.doorOpened
+      );
     }
   }
 
