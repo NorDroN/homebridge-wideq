@@ -109,6 +109,21 @@ export class RefrigeratorParser extends AccessoryParser {
           }
         );
       }
+
+      if (modelValues.hasOwnProperty("IcePlus")) {
+        this.createOrUpdateService(
+          accessory, 'Ice Plus', this.platform.Service.Switch,
+          this.platform.Characteristic.On,
+          status?.icePlusStatus,
+          value => {
+            if (this.platform.config.refrigeratorControlType == "key") {
+              return device.setIcePlusStatus(value);
+            } else {
+              return device.setBinaryIcePlus(status, value);
+            }
+          }
+        );
+      }
     }
   }
 
