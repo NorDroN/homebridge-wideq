@@ -163,6 +163,16 @@ export class RefrigeratorParser extends AccessoryParser {
           .updateValue(status.freshAirFilterStatus == FreshAirFilter.POWER ? 2 : 0);
         airPurifierService.getCharacteristic(this.platform.Characteristic.TargetAirPurifierState)
           .updateValue(status.freshAirFilterStatus != FreshAirFilter.POWER);
+
+        let airFilterMaintenanceService = accessory.getService("Air Filtration Maintenance");
+        if (!airFilterMaintenanceService) {
+          airFilterMaintenanceService = accessory.addService(this.platform.Service.FilterMaintenance, "Air Filtration Maintenance", "maintenance");
+          airFilterMaintenanceService.getCharacteristic(this.platform.Characteristic.FilterChangeIndication)
+            .on("get", (callback: (error?: Error | null , value?: any) => void) => callback(null, status.freshAirFilterStatus == FreshAirFilter.REPLACE_FILTER));
+          airPurifierService.addLinkedService(airFilterMaintenanceService);
+        }
+        airFilterMaintenanceService.updateCharacteristic(this.platform.Characteristic.FilterChangeIndication,
+          status.freshAirFilterStatus == FreshAirFilter.REPLACE_FILTER);
       }
     }
   }
