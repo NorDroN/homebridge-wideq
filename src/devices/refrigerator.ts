@@ -1,4 +1,4 @@
-import { DeviceInfo, RefrigeratorDevice, RefrigeratorStatus } from 'wideq';
+import { DeviceInfo, FreshAirFilter, RefrigeratorDevice, RefrigeratorStatus } from 'wideq';
 import { celsiusToFahrenheit, fahrenheitToCelsius } from 'temperature';
 import { WideQ } from '../index';
 import { AccessoryParser } from './accessory';
@@ -123,6 +123,46 @@ export class RefrigeratorParser extends AccessoryParser {
             }
           }
         );
+      }
+
+      if (modelValues.hasOwnProperty("FreshAirFilter")) {
+        // create them once
+        let airPurifierService = accessory.getService("Air Filtration");
+        if (!airPurifierService) {
+          airPurifierService = accessory.addService(this.platform.Service.AirPurifier, "Air Filtration", "filtration");
+          airPurifierService.getCharacteristic(this.platform.Characteristic.Active)
+            .on("get", (callback: (error?: Error | null , value?: any) => void) => {
+              callback(null, status.freshAirFilterStatus == FreshAirFilter.POWER);
+            })
+            .on("set", (value: boolean, callback: (error?: Error | null , value?: any) => void) => {
+              if (status.freshAirFilterStatus == FreshAirFilter.REPLACE_FILTER) {
+                callback(new Error("Replace filter"), null);
+              }
+              device.setBinaryFreshAirFilter(status, value ? FreshAirFilter.POWER : FreshAirFilter.AUTO).then();
+              callback(null, value);
+            });
+          airPurifierService.getCharacteristic(this.platform.Characteristic.CurrentAirPurifierState)
+            .on("get", (callback: (error?: Error | null , value?: any) => void) => {
+              callback(null, status.freshAirFilterStatus == FreshAirFilter.POWER ? 2 : 0);
+            });
+          airPurifierService.getCharacteristic(this.platform.Characteristic.TargetAirPurifierState)
+            .on("get", (callback: (error?: Error | null , value?: any) => void) => {
+              callback(null, status.freshAirFilterStatus != FreshAirFilter.POWER);
+            })
+            .on("set", (value: boolean, callback: (error?: Error | null , value?: any) => void) => {
+              if (status.freshAirFilterStatus == FreshAirFilter.REPLACE_FILTER) {
+                callback(new Error("Replace filter"), null);
+              }
+              device.setBinaryFreshAirFilter(status, value ? FreshAirFilter.POWER : FreshAirFilter.AUTO).then();
+              callback(null, value);
+            });
+        }
+        airPurifierService.getCharacteristic(this.platform.Characteristic.Active)
+          .updateValue(status.freshAirFilterStatus == FreshAirFilter.POWER);
+        airPurifierService.getCharacteristic(this.platform.Characteristic.CurrentAirPurifierState)
+          .updateValue(status.freshAirFilterStatus == FreshAirFilter.POWER ? 2 : 0);
+        airPurifierService.getCharacteristic(this.platform.Characteristic.TargetAirPurifierState)
+          .updateValue(status.freshAirFilterStatus != FreshAirFilter.POWER);
       }
     }
   }
