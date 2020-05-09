@@ -94,6 +94,21 @@ export class RefrigeratorParser extends AccessoryParser {
         this.platform.Characteristic.ContactSensorState,
         status.doorOpened
       );
+
+      if (modelValues.hasOwnProperty("EcoFriendly")) {
+        this.createOrUpdateService(
+          accessory, 'Eco', this.platform.Service.Switch,
+          this.platform.Characteristic.On,
+          status?.ecoEnabled,
+          value => {
+            if (this.platform.config.refrigeratorControlType == "key") {
+              return device.setEcoEnabled(value);
+            } else {
+              return device.setBinaryEco(status, value);
+            }
+          }
+        );
+      }
     }
   }
 
