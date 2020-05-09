@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "temperature": "git://github.com/ncovercash/temperature.git#47fc137",
-    "wideq": "^1.1.1"
+    "wideq": "git://github.com/ncovercash/wideq-js.git#personal-playground"
   },
   "devDependencies": {
     "@types/uuid": "^3.4.6",
