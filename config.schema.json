@@ -27,6 +27,16 @@
       "default": 10,
       "required": true
     },
+    "refrigeratorControlType": {
+      "title": "Refrigerator Control Type",
+      "type": "boolean",
+      "default": "binary",
+      "oneOf": [
+        { "title": "Binary", "enum": ["binary"] },
+        { "title": "Key (Legacy)", "enum": ["key"] }
+      ],
+      "required": false
+    },
     "debug": {
       "title": "Enable Debug Mode?",
       "type": "boolean",
