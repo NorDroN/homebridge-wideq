@@ -29,7 +29,7 @@
     },
     "refrigeratorControlType": {
       "title": "Refrigerator Control Type",
-      "type": "boolean",
+      "type": "string",
       "default": "binary",
       "oneOf": [
         { "title": "Binary", "enum": ["binary"] },
