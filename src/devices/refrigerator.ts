@@ -174,6 +174,19 @@ export class RefrigeratorParser extends AccessoryParser {
         airFilterMaintenanceService.updateCharacteristic(this.platform.Characteristic.FilterChangeIndication,
           status.freshAirFilterStatus == FreshAirFilter.REPLACE_FILTER);
       }
+
+      if (modelValues.hasOwnProperty("WaterFilterUsedMonth")) {
+        this.createOrUpdateService(
+          accessory, 'Water Filter', this.platform.Service.FilterMaintenance,
+          this.platform.Characteristic.FilterChangeIndication,
+          status.waterFilterUsedMonth >= 6
+        );
+        this.createOrUpdateService(
+          accessory, 'Water Filter', this.platform.Service.FilterMaintenance,
+          this.platform.Characteristic.FilterLifeLebel,
+          100*(6-status.waterFilterUsedMonth)/6
+        );
+      }
     }
   }
 
