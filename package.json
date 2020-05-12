@@ -24,7 +24,8 @@
     "build": "tsc"
   },
   "dependencies": {
-    "wideq": "^1.1.1"
+    "temperature": "git://github.com/ncovercash/temperature.git#47fc137",
+    "wideq": "git://github.com/ncovercash/wideq-js.git#personal-playground"
   },
   "devDependencies": {
     "@types/uuid": "^3.4.6",

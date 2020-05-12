@@ -92,7 +92,10 @@ export class AccessoryParser {
     if (setter && characteristic.listeners('set').length === 0) {
       characteristic.on('set', (value: any, callback: any) =>
         setter(value)
-          .then(() => characteristic.updateValue(value))
+          .then(() => {
+            characteristic.updateValue(value);
+            callback(null);
+          })
           .catch(err => callback(err))
       );
     }
