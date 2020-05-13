@@ -47,7 +47,9 @@ export class AccessoryParser {
       accessory.reachable = true;
       accessory.on('identify', (paired: any, callback: any) => {
         this.platform.log.debug(accessory.displayName + ' Identify!!!');
-        callback();
+        if (callback) { // callback may not exist
+          callback();
+        }
       });
 
       return accessory;
