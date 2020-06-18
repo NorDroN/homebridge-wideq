@@ -1,6 +1,6 @@
 {
   "name": "homebridge-wideq",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "WideQ for Homebridge",
   "author": "NorDroN",
   "keywords": [
@@ -28,6 +28,7 @@
   },
   "devDependencies": {
     "@types/uuid": "^3.4.6",
+    "@types/node": "^14.0.13",
     "tslint": "^6.1.2",
     "ts-node": "^8.6.2",
     "typescript": "^3.7.5"
